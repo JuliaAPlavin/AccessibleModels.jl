@@ -4,6 +4,7 @@ using Reexport
 @reexport using AccessorsExtra
 using DataManipulation
 using Distributions
+import Printf
 
 export AccessibleModel, getobj, samples
 

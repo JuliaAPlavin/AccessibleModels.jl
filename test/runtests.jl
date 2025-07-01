@@ -9,6 +9,7 @@ using TestItemRunner
     using Optimization, OptimizationMetaheuristics
     using Pigeons
     using MonteCarloMeasurements
+    using Makie
 
 
     struct ExpFunction{A,B}
@@ -43,6 +44,12 @@ using TestItemRunner
     amodel = AccessibleModel(Base.Fix2(loglike, data), mod0, (
         (@o _.comps[∗].shift) => Uniform(0, 10),
     ))
+
+    fig = Figure()
+    obj, sg = SliderGrid(fig[1,1], amodel)
+    obj, sg = SliderGrid(fig[2,1], amodel; width=300)
+    @test obj isa Observable
+    @test obj[] isa SumFunction
 
     op = OptimizationProblem(amodel)
     sol = solve(op, ECA(), amodel)
