@@ -12,7 +12,7 @@ struct MySolution
     amodel
 end
 
-Optimization.solve(a::OptimizationProblem, b, s::AccessibleModel) = MySolution(solve(a, b), s)
+Optimization.solve(a::OptimizationProblem, b, s::AccessibleModel; kwargs...) = MySolution(solve(a, b; kwargs...), s)
 AccessibleModels.getobj(sol::MySolution) = from_transformed(sol.sol.u, sol.amodel)
 
 end
