@@ -1,7 +1,7 @@
 name = "AccessibleModels"
 uuid = "4b3c8bd9-8c05-441a-9330-31ce8207a5fd"
 authors = ["Alexander Plavin <alexander@plav.in>"]
-version = "0.1.2"
+version = "0.1.3"
 
 [deps]
 AccessorsExtra = "33016aad-b69d-45be-9359-82a41f556fd4"

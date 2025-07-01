@@ -24,7 +24,7 @@ using TestItemRunner
     (m::ExpFunction)(x) = m.scale * exp(-(x - m.shift)^2)
     (m::SumFunction)(x) = sum(c -> c(x), m.comps)
 
-    loglike(m::SumFunction, data) = sum(r -> pdf(Normal(m(r.x), 1), r.y), data)
+    loglike(m::SumFunction, data) = sum(r -> logpdf(Normal(m(r.x), 1), r.y), data)
 
     truemod = SumFunction((
         ExpFunction(2, 5),
