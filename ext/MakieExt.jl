@@ -14,7 +14,7 @@ function Makie.SliderGrid(pos, m::AccessibleModel; fmt=x -> @sprintf("%.3f", x),
         map(1:N) do j
             Label(pos[i,1][j,1], "$(AccessorsExtra.barebones_string(o)) #$j")
             Label(pos[i,1][j,3], @lift fmt($curvals[j]))
-            sl = Slider(pos[i,1][j,2]; range=(0,1), startvalue=0.5, kwargs...)
+            sl = Slider(pos[i,1][j,2]; range=range(0,1; length=300), startvalue=0.5, kwargs...)
         end
 	end
 	Label(pos[0,:], "$(nameof(typeof(m.modelobj))):", tellwidth=false)
