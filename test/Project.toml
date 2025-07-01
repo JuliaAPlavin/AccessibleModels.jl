@@ -1,6 +1,11 @@
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 CompatHelperLocal = "5224ae11-6099-4aaa-941d-3aab004bd678"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Optimization = "7f7a1694-90dd-40f0-9382-eb1efda571ba"
+OptimizationMetaheuristics = "3aafef2f-86ae-4776-b337-85a36adf0b55"
+Pigeons = "0eb8d820-af6a-4919-95ae-11206f830c31"
+StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 TestItemRunner = "f8b46487-2199-4994-9208-9a1283c18c0a"
 TestItems = "1c621080-faea-4a02-84b6-bbd5e436b8fe"
