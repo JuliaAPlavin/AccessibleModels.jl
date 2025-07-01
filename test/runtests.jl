@@ -8,6 +8,7 @@ using TestItemRunner
     using Distributions
     using Optimization, OptimizationMetaheuristics
     using Pigeons
+    using MonteCarloMeasurements
 
 
     struct ExpFunction{A,B}
@@ -49,7 +50,17 @@ using TestItemRunner
     @test getobj(sol) isa SumFunction
 
     
-    # pt = pigeons(; target=amodel, kwargs...)
+    pt = pigeons(; target=amodel, n_rounds=8, record=[traces; round_trip; record_default()])
+    # @test sample_names(pt)
+    ss = samples(pt)
+    @test length(ss) == 2^8
+    @test ss isa AbstractVector{<:SumFunction}
+    @test 0 ≤ ss[1].comps[1].shift ≤ 10
+
+    sp = samples(Particles, pt)
+    @test sp isa SumFunction
+    @test sp.comps[1].shift isa Particles
+    @test 0 ≤ sp.comps[1].shift ≤ 10
 end
 
 
