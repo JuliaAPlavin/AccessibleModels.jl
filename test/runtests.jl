@@ -82,7 +82,7 @@ using TestItemRunner
     @test getobj(sol) isa SumFunction
 
     pt = pigeons(; target=amodel, n_rounds=8, record=[traces; round_trip; record_default()])
-    # @test sample_names(pt)
+    @test sample_names(pt) == [Symbol("comps[1].shift"), Symbol("comps[2].shift"), Symbol("comps[3].shift"), :log_density]
     ss = samples(pt)
     @test length(ss) == 2^8
     @test ss isa AbstractVector{<:SumFunction}
@@ -95,10 +95,10 @@ using TestItemRunner
 end
 
 
-# @testitem "_" begin
-#     import Aqua
-#     Aqua.test_all(AccessibleModels)
+@testitem "_" begin
+    import Aqua
+    Aqua.test_all(AccessibleModels)
 
-#     import CompatHelperLocal as CHL
-#     CHL.@check()
-# end
+    import CompatHelperLocal as CHL
+    CHL.@check()
+end
