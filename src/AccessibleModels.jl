@@ -8,6 +8,23 @@ import Printf
 
 export AccessibleModel, getobj, samples
 
+"""
+    AccessibleModel(loglike, modelobj, opticspecs)
+
+A model wrapper that provides accessible parameter manipulation through optics.
+
+# Arguments
+- `loglike`: Log-likelihood function
+- `modelobj`: Model object to wrap
+- `opticspecs`: Pairs of optics and distributions or intervals for parameters
+
+# Fields
+- `loglike`: Log-likelihood function
+- `modelobj`: The underlying model object
+- `optics`: Optics for parameter access
+- `distributions`: Parameter distributions or intervals
+- `prior`: Prior distribution
+"""
 struct AccessibleModel{F,M,P,D,PD}
     loglike::F
     modelobj::M
@@ -24,6 +41,7 @@ AccessibleModel(loglike, modelobj, opticspecs) = AccessibleModel(
         fill(d, AccessorsExtra.nvals_optic(modelobj, o))
     end |> Tuple,
 )
+
 AccessibleModel(loglike, modelobj, optics, distributions) = AccessibleModel(
     loglike,
     modelobj,
@@ -38,31 +56,92 @@ function _quantile end
 function _logpdf end
 
 _optic((o, d)::Pair) = o
-optic(optics) = AccessorsExtra.ConcatOptics(map(_optic, optics))
+
+"""
+    from_raw(u, m::AccessibleModel)
+
+Convert raw parameter vector to model object.
+"""
 from_raw(u, m::AccessibleModel) = AccessorsExtra.setall_or_construct(m.modelobj, AccessorsExtra.ConcatOptics(m.optics), u)
+
+"""
+    from_transformed(u, m::AccessibleModel)
+
+Convert transformed (to 0..1) parameter vector to model object.
+"""
 from_transformed(u, m::AccessibleModel) = from_raw(itransform(u, m), m)
 
+"""
+    transform(u, m::AccessibleModel)
+
+Transform raw parameters to 0..1 space using distribution CDFs or interval bounds.
+"""
 transform(u, m::AccessibleModel) =
     map(u, m.distributions) do v, d
         _cdf(d, v)
     end
+
+"""
+    itransform(u, m::AccessibleModel)
+
+Inverse transform from 0..1 space to raw parameters using distribution quantiles or interval bounds.
+"""
 itransform(u, m::AccessibleModel) =
     map(u, m.distributions) do v, d
         _quantile(d, v)
     end
 
+"""
+    transformed_func(m::AccessibleModel)
+
+Get log-likelihood function that takes transformed parameters (in 0..1 space).
+"""
 transformed_func(m::AccessibleModel) = (u, p) -> (m.loglike::Base.Fix2).f(from_transformed(u, m), p)
+
+"""
+    raw_vec(m::AccessibleModel)
+
+Extract raw parameter vector from model object.
+"""
 raw_vec(m::AccessibleModel) = getall(m.modelobj, AccessorsExtra.ConcatOptics(m.optics))
+
+"""
+    transformed_vec(m::AccessibleModel)
+
+Get the parameter vector in transformed 0..1 space.
+"""
 transformed_vec(m::AccessibleModel) = transform(raw_vec(m), m)
+
+"""
+    rawdata(m::AccessibleModel)
+
+Extract the data from the log-likelihood function.
+"""
 rawdata(m::AccessibleModel) = (m.loglike::Base.Fix2).x
+
+"""
+    transformed_bounds(m::AccessibleModel)
+
+Get parameter bounds in transformed space (always 0..1). Returns a tuple of lower and upper bounds, format suitable for Optimization.jl.
+"""
 transformed_bounds(m::AccessibleModel) = @p let
     m.distributions
     (lb=zeros(length(__)), ub=ones(length(__)))
 end
 
+"""
+    getobj(sol)
+
+Extract the model object from an optimization solution.
+"""
 function getobj end
 
 # only for Pigeons: needs to be callable to pass to pigeons() directly
+"""
+    (m::AccessibleModel)(x)
+
+Compute log-posterior: log-prior + log-likelihood.
+"""
 function (m::AccessibleModel)(x)
     prior = _logpdf(m.prior, x)
     prior == -Inf && return prior
@@ -70,6 +149,15 @@ function (m::AccessibleModel)(x)
     return prior + like
 end
 
+"""
+    samples(pt)
+
+Extract MCMC samples from Pigeons sampling results as vector of model objects.
+
+    samples(Particles, pt)
+
+Extract MCMC samples as single object with MonteCarloMeasurements.Particles for parameters.
+"""
 function samples end
 
 end

@@ -6,6 +6,11 @@ using AccessibleModels.Printf
 using AccessibleModels: flatmap
 using Makie
 
+"""
+    SliderGrid(pos, m::AccessibleModel; fmt=ff"{:.3f}", kwargs...)
+
+Create interactive Makie sliders for model parameters with real-time object updates.
+"""
 function Makie.SliderGrid(pos, m::AccessibleModel; fmt=x -> @sprintf("%.3f", x), kwargs...)
     result = Observable{Any}(m.modelobj)
     tvec = transformed_vec(m)
