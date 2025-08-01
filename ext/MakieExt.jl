@@ -3,7 +3,7 @@ module MakieExt
 using AccessibleModels
 using AccessibleModels: from_transformed, transformed_vec
 using AccessibleModels.Printf
-using AccessibleModels.DataManipulation
+using AccessibleModels: flatmap
 using Makie
 
 function Makie.SliderGrid(pos, m::AccessibleModel; fmt=x -> @sprintf("%.3f", x), kwargs...)
