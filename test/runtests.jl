@@ -39,8 +39,8 @@ using TestItemRunner
     
     mod0 = SumFunction((
         ExpFunction(1., 1.),
-        ExpFunction(1., 2.),
-        ExpFunction(1., 3.),
+        ExpFunction(1f0, 2f0),
+        ExpFunction(1, 3),
     ))
 
 
@@ -68,6 +68,11 @@ using TestItemRunner
     amodel = AccessibleModel(Base.Fix2(loglike, data), mod0, (
         (@o _.comps[∗].shift) => Uniform(0, 10),
     ))
+
+    vec0 = @inferred AccessibleModels.raw_vec(amodel)
+    @test eltype(vec0) == Float64
+    @test (@inferred AccessibleModels.from_raw(vec0, amodel)) isa SumFunction
+    @test (@inferred AccessibleModels.from_raw(collect(vec0), amodel)) isa SumFunction
 
     fig = Figure()
     obj, sg = SliderGrid(fig[1,1], amodel)
