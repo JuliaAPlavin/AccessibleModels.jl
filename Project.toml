@@ -17,6 +17,7 @@ Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 MonteCarloMeasurements = "0987c9cc-fe09-11e8-30f0-b96dd679fdca"
 Optimization = "7f7a1694-90dd-40f0-9382-eb1efda571ba"
 Pigeons = "0eb8d820-af6a-4919-95ae-11206f830c31"
+Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 
 [extensions]
 DistributionsExt = "Distributions"
@@ -25,6 +26,7 @@ MakieExt = "Makie"
 MonteCarloMeasurementsPigeonsExt = ["MonteCarloMeasurements", "Pigeons"]
 OptimizationExt = "Optimization"
 PigeonsExt = "Pigeons"
+TablesExt = "Tables"
 
 [compat]
 AccessorsExtra = "0.1.98"
@@ -38,4 +40,5 @@ Optimization = "4.4.0"
 Pigeons = "0.4.9"
 Printf = "1"
 Reexport = "1.2.2"
+Tables = "1.12.1"
 julia = "1.10"
