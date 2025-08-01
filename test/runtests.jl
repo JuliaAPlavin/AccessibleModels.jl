@@ -40,8 +40,8 @@ using TestItemRunner
     
     mod0 = SumFunction((
         ExpFunction(1., 1.),
-        ExpFunction(1.5f0, 2f0),
-        ExpFunction(2, 3),
+        ExpFunction(1.5, 2f0),
+        ExpFunction(2., 3),
     ))
 
 
@@ -49,12 +49,39 @@ using TestItemRunner
     amodel = AccessibleModel(Base.Fix2(loglike, data), mod0, (
         (@o _.comps[∗].shift) => 0..10,
     ))
+
+    vec0 = @inferred AccessibleModels.raw_vec(amodel)
+    @test eltype(vec0) == Float64
+    @test (@inferred AccessibleModels.from_raw(vec0, amodel)) == SumFunction((
+        ExpFunction(1., 1.),
+        ExpFunction(1.5, 2.),
+        ExpFunction(2., 3.),
+    ))
+    @test (@inferred AccessibleModels.from_raw(collect(vec0), amodel)) == SumFunction((
+        ExpFunction(1., 1.),
+        ExpFunction(1.5, 2.),
+        ExpFunction(2., 3.),
+    ))
     
     @test rowtable(amodel)::Vector{@NamedTuple{param::String, value::Float64, prior::String}} == [
         (param="comps[1].shift", value=1.0, prior="0 .. 10"),
         (param="comps[2].shift", value=2.0, prior="0 .. 10"),
         (param="comps[3].shift", value=3.0, prior="0 .. 10"),
     ]
+    @test AccessibleModels.from_table(reverse(rowtable(amodel)), amodel) == SumFunction((
+        ExpFunction(1., 1.),
+        ExpFunction(1.5, 2.),
+        ExpFunction(2., 3.),
+    ))
+    @test AccessibleModels.from_table([
+        (param="comps[2].shift", value=20),
+        (param="comps[1].shift", value=10),
+        (param="comps[3].shift", value=30),
+    ], amodel) == SumFunction((
+        ExpFunction(1., 10),
+        ExpFunction(1.5, 20),
+        ExpFunction(2., 30),
+    ))
 
     fig = Figure()
     obj, sg = SliderGrid(fig[1,1], amodel)
@@ -80,11 +107,6 @@ using TestItemRunner
         (param="comps[2].shift", value=2, prior="Distributions.Uniform{Float64}(a=0.0, b=10.0)"),
         (param="comps[3].shift", value=3, prior="Distributions.Uniform{Float64}(a=0.0, b=10.0)"),
     ]
-
-    vec0 = @inferred AccessibleModels.raw_vec(amodel)
-    @test eltype(vec0) == Float64
-    @test (@inferred AccessibleModels.from_raw(vec0, amodel)) isa SumFunction
-    @test (@inferred AccessibleModels.from_raw(collect(vec0), amodel)) isa SumFunction
 
     fig = Figure()
     obj, sg = SliderGrid(fig[1,1], amodel)

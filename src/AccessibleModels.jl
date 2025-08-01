@@ -164,4 +164,12 @@ Extract MCMC samples as single object with MonteCarloMeasurements.Particles for 
 """
 function samples end
 
+"""
+    from_table(tbl, m::AccessibleModel)
+
+Return the model object reconstructed from a table of parameters.
+Such a table can be obtained as `rowtable(m)`, or saved/loaded with any Tables.jl-compatible package.
+"""
+from_table(tbl, m) = error("load Tables.jl to use from_table")
+
 end
