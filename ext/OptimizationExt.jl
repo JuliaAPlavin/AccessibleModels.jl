@@ -9,12 +9,12 @@ function Optimization.OptimizationProblem(s::AccessibleModel, args...; kwargs...
     OptimizationProblem(OptimizationFunction((args...) -> -tf(args...)), transformed_vec(s), rawdata(s), args...; transformed_bounds(s)..., kwargs...)
 end
 
-struct MySolution
+struct AccessibleSolution
     sol
     amodel
 end
 
-Optimization.solve(a::OptimizationProblem, b, s::AccessibleModel; kwargs...) = MySolution(solve(a, b; kwargs...), s)
-AccessibleModels.getobj(sol::MySolution) = from_transformed(sol.sol.u, sol.amodel)
+Optimization.solve(a::OptimizationProblem, b, s::AccessibleModel; kwargs...) = AccessibleSolution(solve(a, b; kwargs...), s)
+AccessibleModels.getobj(sol::AccessibleSolution) = from_transformed(sol.sol.u, sol.amodel)
 
 end
