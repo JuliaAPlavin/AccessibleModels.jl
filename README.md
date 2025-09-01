@@ -1,8 +1,18 @@
 # AccessibleModels.jl
 
-# Usage
+**Fit, optimize, and interactively explore models that are arbitrary Julia objects.**
 
-Define your model object – an arbitrary struct (no dependency on AccessibleModels needed):
+AccessibleModels.jl is a thin layer that connects [Accessors.jl](https://github.com/JuliaObjects/Accessors.jl) with popular Julia packages for model fitting, optimization, and visualization:
+
+- **Universal model fitting**: Optimize/fit a model with parameters being any Julia object
+- **Wide ecosystem integration**: Works seamlessly with optimization packages (Optimization.jl), Bayesian MCMC sampling (Pigeons.jl), and more
+- **Interactive UIs**: Create quick parameter manipulation interfaces with Makie.jl
+- **Zero boilerplate**: Just define what your model parameters are, no need to write custom extraction or reconstruction code
+- **Flexible**: Model structure and parameter definitions are decoupled, facilitating rapid exploration
+
+## Usage
+
+Define your model object as an arbitrary struct (no dependency on AccessibleModels needed):
 ```julia
 julia> struct ExpFunction{A,B}
            scale::A
@@ -17,7 +27,8 @@ julia> (m::ExpFunction)(x) = m.scale * exp(-(x - m.shift)^2)
 
 julia> (m::SumFunction)(x) = sum(c -> c(x), m.comps)
 ```
-This model describes a smooth function, sum of squared exponents:
+
+This model describes a smooth function, sum of exponentials:
 ```julia
 julia> mod0 = SumFunction((
            ExpFunction(1., 1.),
@@ -29,9 +40,9 @@ julia> lines(0..5, x -> mod0(x))
 <img width="600" alt="figure1_initial_model" src="https://github.com/user-attachments/assets/2b3e4409-aa7c-4172-ab2e-54e8f7da91bd" />
 
 
-## Quick UI
+## Quick Interactive UI
 
-And use AccessibleModels.jl to create a Makie UI to adjust their parameters:
+Use AccessibleModels.jl to create an interactive Makie UI for adjusting model parameters:
 ```julia
 julia> using AccessibleModels, IntervalSets
 julia> using GLMakie
@@ -53,17 +64,20 @@ julia> lines(0..10, @lift x -> $obj(x))
 
 https://github.com/user-attachments/assets/cb4e1176-eac3-4899-b78b-35dbdece5c6f
 
+See [Accessors.jl](https://github.com/JuliaObjects/Accessors.jl) and [AccessorsExtra.jl](https://github.com/JuliaAPlavin/AccessorsExtra.jl) for more details and examples on how parameters can be defined.
 
 
 ## Optimization
 
-The same AccessibleModel, just add the loss function.
+Use the same AccessibleModel with a loss function for optimization.
 
-No need to think about vectors, deconstruct/reconstruct objects manually.
-Works with any objects, no magic nor special annotations
+Key benefits compared:
+- No need to manually convert between vectors and objects
+- Works with any Julia objects
+- No special annotations or magic required
 
 ```julia
-# generate some example data using a "true" model
+# Generate example data using a "true" model
 julia> true_model = SumFunction((
            ExpFunction(2.0, 3.0),
            ExpFunction(1.5, 7.0),
@@ -77,7 +91,7 @@ julia> data = [(x=x, y=true_model(x) + 0.2 * randn()) for x in 0:0.5:10]
 
 julia> loglike(m::SumFunction, data) = sum(r -> logpdf(Normal(m(r.x), 0.3), r.y), data)
 
-# the only change: pass loglikelihood function
+# The only change: add the log-likelihood function
 julia> amodel = AccessibleModel(Base.Fix2(loglike, data), mod0, (
            (@o _.comps[∗].shift) => 0..10,
            (@o _.comps[∗].scale) => 0..4,
@@ -89,7 +103,7 @@ julia> op = OptimizationProblem(amodel)
 
 julia> sol = solve(op, ECA(), amodel)
 
-# get the fitted model - values are close to the true model above:
+# Get the fitted model (values are close to the true model above):
 julia> getobj(sol)
 SumFunction((
     ExpFunction(1.983, 3.098),
@@ -97,16 +111,16 @@ SumFunction((
 ```
 <img width="600" alt="figure2_optimization_results" src="https://github.com/user-attachments/assets/b711187e-7c15-413a-bee5-15fba33c93c4" />
 
-# MCMC fitting
+## MCMC Sampling
 
-The exact same AccessibleModel as in the optimization example above. Alternatively, one can specify priors with Distributions.jl distributions instead of intervals.
+Use the exact same AccessibleModel as in the optimization example above. Alternatively, you can specify priors using Distributions.jl distributions instead of intervals.
 
 ```julia
 julia> using Pigeons
 
 julia> pt = pigeons(target=amodel, record=[traces; round_trip; record_default()])
 
-julia> samples(pt)  # Returns vector of SumFunction objects with sampled parameters
+julia> samples(pt)  # Returns a vector of SumFunction objects with sampled parameters
 256-element Vector{SumFunction}:
  SumFunction((ExpFunction(1.5, 6.96), ExpFunction(2.05, 2.93)))
  SumFunction((ExpFunction(1.46, 7.04), ExpFunction(2.42, 2.91)))
@@ -114,22 +128,19 @@ julia> samples(pt)  # Returns vector of SumFunction objects with sampled paramet
  ⋮
 ```
 
-Integration w/ MonteCarloMeasurements:
+Integration with MonteCarloMeasurements:
 ```julia
 julia> using MonteCarloMeasurements
 
-# Returns SumFunction with Particles for parameters
+# Returns a SumFunction with Particles for parameters
 # Each parameter becomes a Particles object with uncertainty estimates
 julia> mcmc_fitted = samples(Particles, pt)
 SumFunction((ExpFunction(1.5 ± 0.5, 5.35 ± 2.0), ExpFunction(1.6 ± 0.6, 4.66 ± 2.0)))
 ```
 
-Thanks to Julia composability, this model can also be plotted directly with Makie:
+Thanks to Julia's composability, this model can be plotted directly with Makie:
 ```julia
 julia> lines!(0..10, x -> mcmc_fitted(x))
 julia> band(0..10, x -> mcmc_fitted(x))
 ```
 <img width="600" alt="figure3_mcmc_uncertainty" src="https://github.com/user-attachments/assets/a6dcaf17-86db-4571-91da-f8f01f8487c7" />
-
-
-```
