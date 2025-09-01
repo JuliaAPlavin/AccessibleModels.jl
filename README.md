@@ -57,9 +57,9 @@ julia> amodel = AccessibleModel(mod0, (
            (@o _.comps[∗].scale) => 0..4,
        ))
 
-julia> obj, = SliderGrid(amodel)
+julia> obj, = SliderGrid(fig[1,1], amodel)
 
-julia> lines(0..10, @lift x -> $obj(x))
+julia> lines(fig[1,2], 0..10, @lift x -> $obj(x))
 ```
 
 https://github.com/user-attachments/assets/cb4e1176-eac3-4899-b78b-35dbdece5c6f
