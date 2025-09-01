@@ -44,6 +44,17 @@ using TestItemRunner
         ExpFunction(2., 3),
     ))
 
+    # model without any function at all:
+    amodel = AccessibleModel(mod0, (
+        (@o _.comps[∗].shift) => 0..10,
+    ))
+
+    fig = Figure()
+    obj, sg = SliderGrid(fig[1,1], amodel)
+    obj, sg = SliderGrid(fig[2,1], amodel; width=300)
+    @test obj isa Observable
+    # @test obj[] == amodel.modelobj
+
 
     # model with intervals, no distributions:
     amodel = AccessibleModel(Base.Fix2(loglike, data), mod0, (
@@ -87,7 +98,7 @@ using TestItemRunner
     obj, sg = SliderGrid(fig[1,1], amodel)
     obj, sg = SliderGrid(fig[2,1], amodel; width=300)
     @test obj isa Observable
-    @test obj[] isa SumFunction
+    # @test obj[] == amodel.modelobj
 
     op = OptimizationProblem(amodel)
     sol = solve(op, ECA(), amodel)

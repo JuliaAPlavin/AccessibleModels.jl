@@ -9,7 +9,7 @@ import Printf
 export AccessibleModel, getobj, samples
 
 """
-    AccessibleModel(loglike, modelobj, opticspecs)
+    AccessibleModel([loglike,] modelobj, opticspecs)
 
 A model wrapper that provides accessible parameter manipulation through optics.
 
@@ -32,6 +32,8 @@ struct AccessibleModel{F,M,P,D,PD}
     distributions::D
     prior::PD
 end
+
+AccessibleModel(modelobj, opticspecs) = AccessibleModel(nothing, modelobj, opticspecs)
 
 AccessibleModel(loglike, modelobj, opticspecs) = AccessibleModel(
     loglike,
