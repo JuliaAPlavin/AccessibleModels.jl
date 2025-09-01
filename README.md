@@ -91,7 +91,7 @@ SumFunction((
     ExpFunction(1.983, 3.098),
     ExpFunction(1.574, 7.013)))
 ```
-<XXXXXXXX image placeholder>
+<XXXXXXXX image placeholder comparing this model lines(), data scatter(), and true model lines()>
 
 # MCMC fitting
 
@@ -116,6 +116,12 @@ julia> using MonteCarloMeasurements
 
 # Returns SumFunction with Particles for parameters
 # Each parameter becomes a Particles object with uncertainty estimates
-julia> samples(Particles, pt)
+julia> mcmc_fitted = samples(Particles, pt)
 SumFunction((ExpFunction(1.5 ± 0.5, 5.35 ± 2.0), ExpFunction(1.6 ± 0.6, 4.66 ± 2.0)))
+```
+
+Thanks to Julia composability, this model can also be plotted directly with Makie:
+```julia
+julia> lines!(0..10, x -> mcmc_fitted(x))
+julia> band(0..10, x -> mcmc_fitted(x))
 ```
