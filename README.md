@@ -37,7 +37,7 @@ julia> mod0 = SumFunction((
 
 julia> lines(0..5, x -> mod0(x))
 ```
-<img width="600" alt="figure1_initial_model" src="https://github.com/user-attachments/assets/2b3e4409-aa7c-4172-ab2e-54e8f7da91bd" />
+<img width="600" alt="figure1_initial_model" src="https://github.com/user-attachments/assets/b4f8ad9f-3c8a-4df4-93da-7e58fb83ec9a" />
 
 
 ## Quick Interactive UI
@@ -62,7 +62,7 @@ julia> obj, = SliderGrid(fig[1,1], amodel)
 julia> lines(fig[1,2], 0..10, @lift x -> $obj(x))
 ```
 
-https://github.com/user-attachments/assets/cb4e1176-eac3-4899-b78b-35dbdece5c6f
+https://github.com/user-attachments/assets/bb0aaa03-e9da-4e04-88ce-d69265db8228
 
 ### Parameter Specification
 
@@ -120,7 +120,7 @@ SumFunction((
     ExpFunction(1.983, 3.098),
     ExpFunction(1.574, 7.013)))
 ```
-<img width="600" alt="figure2_optimization_results" src="https://github.com/user-attachments/assets/b711187e-7c15-413a-bee5-15fba33c93c4" />
+<img width="600" alt="figure2_optimization_results" src="https://github.com/user-attachments/assets/9f8ee461-0e70-4da9-9df3-8e56fcb7328e" />
 
 ## MCMC Sampling
 
@@ -155,4 +155,4 @@ Thanks to Julia's composability, this model can be plotted directly with Makie:
 julia> lines!(0..10, x -> mcmc_fitted(x))
 julia> band(0..10, x -> mcmc_fitted(x))
 ```
-<img width="600" alt="figure3_mcmc_uncertainty" src="https://github.com/user-attachments/assets/a6dcaf17-86db-4571-91da-f8f01f8487c7" />
+<img width="600" alt="figure3_mcmc_uncertainty" src="https://github.com/user-attachments/assets/7750664d-86a2-4e61-b8cc-56d5677743e3" />
