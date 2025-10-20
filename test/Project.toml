@@ -2,6 +2,7 @@
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 CompatHelperLocal = "5224ae11-6099-4aaa-941d-3aab004bd678"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 MonteCarloMeasurements = "0987c9cc-fe09-11e8-30f0-b96dd679fdca"
 Optimization = "7f7a1694-90dd-40f0-9382-eb1efda571ba"

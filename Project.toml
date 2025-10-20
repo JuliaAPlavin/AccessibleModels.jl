@@ -1,17 +1,17 @@
 name = "AccessibleModels"
 uuid = "4b3c8bd9-8c05-441a-9330-31ce8207a5fd"
 authors = ["Alexander Plavin <alexander@plav.in>"]
-version = "0.1.9"
+version = "0.1.10"
 
 [deps]
 AccessorsExtra = "33016aad-b69d-45be-9359-82a41f556fd4"
 DataPipes = "02685ad9-2d12-40c3-9f73-c6aeda6a7ff5"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 FlexiMaps = "6394faf6-06db-4fa8-b750-35ccc60383f7"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [weakdeps]
-Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 MonteCarloMeasurements = "0987c9cc-fe09-11e8-30f0-b96dd679fdca"
@@ -20,7 +20,6 @@ Pigeons = "0eb8d820-af6a-4919-95ae-11206f830c31"
 Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 
 [extensions]
-DistributionsExt = "Distributions"
 IntervalSetsExt = "IntervalSets"
 MakieExt = "Makie"
 MonteCarloMeasurementsPigeonsExt = ["MonteCarloMeasurements", "Pigeons"]
