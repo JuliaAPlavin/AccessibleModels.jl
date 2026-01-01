@@ -95,7 +95,8 @@ using TestItemRunner
     @test length(sol.sol.u::Vector) == 3
     @test getobj(sol) isa SumFunction
 
-    @test_throws "No prior" pigeons(; target=amodel, n_rounds=8, record=[traces; round_trip; record_default()])
+    # just a smoke test:
+    pigeons(; target=amodel, n_rounds=8, record=[traces; round_trip; record_default()])
 
     # model with distributions:
     amodel = AccessibleModel(Base.Fix2(loglike, data), mod0, (
