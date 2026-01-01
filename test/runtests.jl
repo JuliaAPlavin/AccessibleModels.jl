@@ -11,6 +11,7 @@ using TestItemRunner
     using MonteCarloMeasurements
     using Makie
     using Makie.IntervalSets: (..)
+    using Tables
 
 
     struct ExpFunction{A,B}
@@ -39,8 +40,8 @@ using TestItemRunner
     
     mod0 = SumFunction((
         ExpFunction(1., 1.),
-        ExpFunction(1f0, 2f0),
-        ExpFunction(1, 3),
+        ExpFunction(1.5f0, 2f0),
+        ExpFunction(2, 3),
     ))
 
 
@@ -48,6 +49,12 @@ using TestItemRunner
     amodel = AccessibleModel(Base.Fix2(loglike, data), mod0, (
         (@o _.comps[∗].shift) => 0..10,
     ))
+    
+    @test rowtable(amodel)::Vector{@NamedTuple{param::String, value::Float64, prior::String}} == [
+        (param="comps[1].shift", value=1.0, prior="0 .. 10"),
+        (param="comps[2].shift", value=2.0, prior="0 .. 10"),
+        (param="comps[3].shift", value=3.0, prior="0 .. 10"),
+    ]
 
     fig = Figure()
     obj, sg = SliderGrid(fig[1,1], amodel)
@@ -63,11 +70,16 @@ using TestItemRunner
 
     @test_throws "No prior" pigeons(; target=amodel, n_rounds=8, record=[traces; round_trip; record_default()])
 
-
     # model with distributions:
     amodel = AccessibleModel(Base.Fix2(loglike, data), mod0, (
         (@o _.comps[∗].shift) => Uniform(0, 10),
     ))
+    
+    @test rowtable(amodel) == [
+        (param="comps[1].shift", value=1, prior="Distributions.Uniform{Float64}(a=0.0, b=10.0)"),
+        (param="comps[2].shift", value=2, prior="Distributions.Uniform{Float64}(a=0.0, b=10.0)"),
+        (param="comps[3].shift", value=3, prior="Distributions.Uniform{Float64}(a=0.0, b=10.0)"),
+    ]
 
     vec0 = @inferred AccessibleModels.raw_vec(amodel)
     @test eltype(vec0) == Float64
