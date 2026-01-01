@@ -53,6 +53,7 @@ using TestItemRunner
 
     op = OptimizationProblem(amodel)
     sol = solve(op, ECA(), amodel)
+    sol = solve(op, ECA(), amodel; maxiters=100)
     @test length(sol.sol.u::Vector) == 3
     @test getobj(sol) isa SumFunction
 
