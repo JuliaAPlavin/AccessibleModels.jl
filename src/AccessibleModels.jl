@@ -41,7 +41,7 @@ AccessibleModel(loglike, modelobj, opticspecs) = AccessibleModel(
     modelobj,
     map(first, opticspecs),
     flatmap(opticspecs) do (o, d)
-        fill(d, AccessorsExtra.nvals_optic(modelobj, o))
+        fill(_to_distribution(d), AccessorsExtra.nvals_optic(modelobj, o))
     end |> Tuple,
 )
 
@@ -50,13 +50,15 @@ AccessibleModel(loglike, modelobj, optics, distributions) = AccessibleModel(
     modelobj,
     optics,
     distributions,
-    _product_distribution(distributions...),
+    product_distribution(distributions...),
 )
 
-function _product_distribution end
-function _cdf end
-function _quantile end
-function _logpdf end
+
+_to_distribution(d::Distribution) = d
+_to_distribution(d) = uniform(d)
+uniform(x::AbstractUnitRange) = DiscreteUniform(first(x), last(x))
+uniform(x::AbstractVector) = DiscreteNonParametric(x, fill(1/length(x), length(x)))
+
 
 _optic((o, d)::Pair) = o
 
@@ -83,14 +85,14 @@ from_transformed(u, m::AccessibleModel) = from_raw(itransform(u, m), m)
 
 Transform raw parameters to 0..1 space using distribution CDFs or interval bounds.
 """
-transform(u, m::AccessibleModel) = _cdf.(m.distributions, u)
+transform(u, m::AccessibleModel) = cdf.(m.distributions, u)
 
 """
     itransform(u, m::AccessibleModel)
 
 Inverse transform from 0..1 space to raw parameters using distribution quantiles or interval bounds.
 """
-itransform(u, m::AccessibleModel) = _quantile.(m.distributions, u)
+itransform(u, m::AccessibleModel) = quantile.(m.distributions, u)
 
 """
     transformed_func(m::AccessibleModel)
@@ -150,7 +152,7 @@ function getobj end
 Compute log-posterior: log-prior + log-likelihood.
 """
 function (m::AccessibleModel)(x)
-    prior = _logpdf(m.prior, x)
+    prior = logpdf(m.prior, x)
     prior == -Inf && return prior
     like = m.loglike(from_raw(x, m))
     return prior + like
@@ -174,7 +176,5 @@ Return the model object reconstructed from a table of parameters.
 Such a table can be obtained as `rowtable(m)`, or saved/loaded with any Tables.jl-compatible package.
 """
 from_table(tbl, m) = error("load Tables.jl to use from_table")
-
-include("../ext/DistributionsExt.jl")
 
 end

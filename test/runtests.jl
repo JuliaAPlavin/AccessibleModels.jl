@@ -104,9 +104,9 @@ end
     ))
     
     @test rowtable(amodel)::Vector{@NamedTuple{param::String, value::Float64, prior::String}} == [
-        (param="comps[1].shift", value=1.0, prior="0 .. 10"),
-        (param="comps[2].shift", value=2.0, prior="0 .. 10"),
-        (param="comps[3].shift", value=3.0, prior="0 .. 10"),
+        (param="comps[1].shift", value=1.0, prior="Distributions.Uniform{Float64}(a=0.0, b=10.0)"),
+        (param="comps[2].shift", value=2.0, prior="Distributions.Uniform{Float64}(a=0.0, b=10.0)"),
+        (param="comps[3].shift", value=3.0, prior="Distributions.Uniform{Float64}(a=0.0, b=10.0)"),
     ]
     @test AccessibleModels.from_table(reverse(rowtable(amodel)), amodel) == SumFunction((
         ExpFunction(1., 1.),
@@ -194,10 +194,13 @@ end
     using Distributions
     using Makie
 
-    amodel = AccessibleModel((a=1, b=2, c=3), (
+    amodel = AccessibleModel((a=1, b=2, c=3, d=4, e=5, f=true), (
         (@o _.a) => Uniform(0, 10),
         (@o _.b) => DiscreteUniform(1, 5),
         (@o _.c) => DiscreteNonParametric([1, 2, 5], [0.2, 0.5, 0.3]),
+        (@o _.d) => 1:5,
+        (@o _.e) => [1,2,5],
+        (@o _.f) => [false,true],
     ))
     fig = Figure()
     for val in range(0..10, 55)
@@ -208,12 +211,25 @@ end
     for val in 1:5
         am = @set amodel.modelobj.b = val
         obj, = SliderGrid(fig[2,1], am)
-        @test obj[].b == val
+        @test obj[].b === val
+
+        am = @set amodel.modelobj.d = val
+        obj, = SliderGrid(fig[2,1], am)
+        @test obj[].d === val
     end
     for val in [1, 2, 5]
         am = @set amodel.modelobj.c = val
         obj, = SliderGrid(fig[3,1], am)
-        @test obj[].c == val
+        @test obj[].c === val
+
+        am = @set amodel.modelobj.e = val
+        obj, = SliderGrid(fig[3,1], am)
+        @test obj[].e === val
+    end
+    for val in [false, true]
+        am = @set amodel.modelobj.f = val
+        obj, = SliderGrid(fig[3,1], am)
+        @test obj[].f === val
     end
 end
 
