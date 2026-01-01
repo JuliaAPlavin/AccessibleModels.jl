@@ -68,7 +68,7 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
         for (dist, sl, label) in zip(m.distributions, sliders, labelkeys)
             on(sl.value) do v
                 rawval = quantile(dist, v)
-                _insert!(state, label, rawval)
+                _set!(state, label, rawval)
             end
         end
     end
@@ -91,7 +91,8 @@ function liftT(f::Function, T::Type, args...)
 end
 
 
-_insert!(dict::AbstractDict, key, value) = dict[key] = value
-_insert!(dict, key, value) = insert!(dict, key, value)  # for Dictionaries
+_set!(dict::AbstractDict, key, value) = dict[key] = value
+# for Dictionaries - same as set!(), but we don't want to depend on Dictionaries.jl
+_set!(dict, key, value) = haskey(dict, key) ? (dict[key] = value) : insert!(dict, key, value)
 
 end

@@ -266,8 +266,13 @@ end
         @test issetequal(keys(state), ["a"])
         @test state["a"] ≈ 6  atol=10/300
 
+        Makie.set_close_to!(sls[1], 0.1)
+        @test obj[].a ≈ 1  atol=10/300
+        @test issetequal(keys(state), ["a"])
+        @test state["a"] ≈ 1  atol=10/300
+
         obj, sls = SliderGrid(fig[1,1], amodel; state)
-        @test obj[].a ≈ 6  atol=10/300
+        @test obj[].a ≈ 1  atol=10/300
         @test obj[].b ≈ 0.5  atol=2/300
     end
 end
