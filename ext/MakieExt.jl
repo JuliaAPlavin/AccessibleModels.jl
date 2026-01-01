@@ -8,18 +8,20 @@ using AccessibleModels: @p, flatmap
 using Makie
 
 """
-    SliderGrid(pos, m::AccessibleModel; fmt=ff"{:.3f}", title, kwargs...)
+    SliderGrid(pos, m::AccessibleModel; fmt, title, state, kwargs...)
 
 Create interactive Makie sliders for model parameters with real-time object updates.
+
+If `state::Dict` is provided, slider values are stored in the given dictionary keyed by
+parameter labels (the same text shown next to sliders).
 """
-function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.modelobj))):", fmt=x -> @sprintf("%.3f", x), rowgap=nothing, kwargs...)
+function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.modelobj))):", fmt=x -> @sprintf("%.3f", x), rowgap=nothing, state=nothing, kwargs...)
     result = Observable{Any}(m.modelobj)
     tvec = transformed_vec(m)
     i_tvec = 0
-	sliders = flatmap(enumerate(m.optics)) do (i, o)
+    labelkeys = String[]
+    sliders = flatmap(enumerate(m.optics)) do (i, o)
         curvals = liftT(result -> getall(result, o), Any, result)
-        dist = m.distributions[i]
-        sliderrange = auto_slider_range(dist)
 
         labels = @p let
             AccessorsExtra.flat_concatoptic(m.modelobj, o)
@@ -31,17 +33,32 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
             Label(pos[i,1][j,1], label)
             Label(pos[i,1][j,3], @lift fmt($curvals[j]))
             i_tvec += 1
-            sl = Slider(pos[i,1][j,2]; range=sliderrange, startvalue=tvec[i_tvec], kwargs...)
+            push!(labelkeys, label)
+            dist = m.distributions[i_tvec]
+            sliderrange = auto_slider_range(dist)
+
+            startvalue = tvec[i_tvec]
+            if !isnothing(state) && haskey(state, label)
+                startvalue = cdf(dist, state[label])
+            end
+            Slider(pos[i,1][j,2]; range=sliderrange, startvalue, kwargs...)
         end
-	end
-	Label(pos[0,:], title, tellwidth=false)
+    end
+    Label(pos[0,:], title, tellwidth=false)
     if !isnothing(rowgap)
         rowgap!(pos, rowgap)
     end
 
-	slidervals = lift(tuple, map(s -> s.value, sliders)...)
-    map!(result, slidervals) do vals
-	    from_transformed(vals, m)
+    map!(result, map(s -> s.value, sliders)...) do vals...
+        from_transformed(vals, m)
+    end
+    if !isnothing(state)
+        for (dist, sl, label) in zip(m.distributions, sliders, labelkeys)
+            on(sl.value) do v
+                rawval = quantile(dist, v)
+                state[label] = rawval
+            end
+        end
     end
     return result, sliders
 end
