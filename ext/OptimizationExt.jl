@@ -4,8 +4,10 @@ using AccessibleModels
 using AccessibleModels: transformed_func, transformed_vec, from_transformed, rawdata, transformed_bounds
 using Optimization
 
-Optimization.OptimizationProblem(s::AccessibleModel, args...; kwargs...) =
-    OptimizationProblem(OptimizationFunction(transformed_func(s)), transformed_vec(s), rawdata(s), args...; transformed_bounds(s)..., kwargs...)
+function Optimization.OptimizationProblem(s::AccessibleModel, args...; kwargs...)
+    tf = transformed_func(s)
+    OptimizationProblem(OptimizationFunction((args...) -> -tf(args...)), transformed_vec(s), rawdata(s), args...; transformed_bounds(s)..., kwargs...)
+end
 
 struct MySolution
     sol
