@@ -64,6 +64,10 @@ Convert raw parameter vector to model object.
 """
 from_raw(u, m::AccessibleModel) = AccessorsExtra.setall_or_construct(m.modelobj, AccessorsExtra.ConcatOptics(m.optics), u)
 
+# doesn't seem needed, but seemed to help inference in some cases:
+from_raw(u::Vector, m::AccessibleModel{<:Any,<:Any,<:Any,<:NTuple{N}}) where {N} = AccessibleModels.from_raw(NTuple{N,eltype(u)}(u), m)
+
+
 """
     from_transformed(u, m::AccessibleModel)
 
@@ -103,7 +107,7 @@ transformed_func(m::AccessibleModel) = (u, p) -> (m.loglike::Base.Fix2).f(from_t
 
 Extract raw parameter vector from model object.
 """
-raw_vec(m::AccessibleModel) = getall(m.modelobj, AccessorsExtra.ConcatOptics(m.optics))
+raw_vec(m::AccessibleModel) = promote(getall(m.modelobj, AccessorsExtra.ConcatOptics(m.optics))...)
 
 """
     transformed_vec(m::AccessibleModel)

@@ -16,7 +16,7 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
     tvec = transformed_vec(m)
     i_tvec = 0
 	sliders = flatmap(enumerate(m.optics)) do (i, o)
-        curvals = @lift getall($result, o)
+        curvals = liftT(result -> getall(result, o), Any, result)
 
         labels = @p let
             AccessorsExtra.flat_concatoptic(m.modelobj, o)
@@ -37,6 +37,14 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
 	    from_transformed(vals, m)
     end
     return result, sliders
+end
+
+
+# copied from MakieExtra.jl:
+function liftT(f::Function, T::Type, args...)
+    res = Observable{T}(f(to_value.(args)...))
+    map!(f, res, args...)
+    return res
 end
 
 end
