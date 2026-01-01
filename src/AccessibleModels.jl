@@ -58,6 +58,8 @@ _to_distribution(d::Distribution) = d
 _to_distribution(d) = uniform(d)
 uniform(x::AbstractUnitRange) = DiscreteUniform(first(x), last(x))
 uniform(x::AbstractVector) = DiscreteNonParametric(x, fill(1/length(x), length(x)))
+# needs https://github.com/JuliaStats/Distributions.jl/pull/2022:
+# uniform(x::AbstractVector{Bool}) = Bernoulli(mean(x))
 
 
 _optic((o, d)::Pair) = o
