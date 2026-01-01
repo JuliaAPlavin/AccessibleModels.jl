@@ -1,12 +1,14 @@
 module PigeonsExt
 
 using AccessibleModels
-using AccessibleModels.DataManipulation
+using AccessibleModels: @p
 using AccessibleModels: raw_vec, from_raw
 using Pigeons
 using Pigeons.Random
 
-Pigeons.default_reference(m::AccessibleModel) = Pigeons.DistributionLogPotential(m.prior)
+Pigeons.default_reference(m::AccessibleModel) =
+    isnothing(m.prior) ? error("No prior specified for model") :
+                         Pigeons.DistributionLogPotential(m.prior)
 
 Pigeons.initialization(m::AccessibleModel, ::AbstractRNG, ::Int) = collect(raw_vec(m))
 

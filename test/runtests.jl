@@ -10,6 +10,7 @@ using TestItemRunner
     using Pigeons
     using MonteCarloMeasurements
     using Makie
+    using Makie.IntervalSets: (..)
 
 
     struct ExpFunction{A,B}
@@ -41,6 +42,29 @@ using TestItemRunner
         ExpFunction(1., 2.),
         ExpFunction(1., 3.),
     ))
+
+
+    # model with intervals, no distributions:
+    amodel = AccessibleModel(Base.Fix2(loglike, data), mod0, (
+        (@o _.comps[∗].shift) => 0..10,
+    ))
+
+    fig = Figure()
+    obj, sg = SliderGrid(fig[1,1], amodel)
+    obj, sg = SliderGrid(fig[2,1], amodel; width=300)
+    @test obj isa Observable
+    @test obj[] isa SumFunction
+
+    op = OptimizationProblem(amodel)
+    sol = solve(op, ECA(), amodel)
+    sol = solve(op, ECA(), amodel; maxiters=100)
+    @test length(sol.sol.u::Vector) == 3
+    @test getobj(sol) isa SumFunction
+
+    @test_throws "No prior" pigeons(; target=amodel, n_rounds=8, record=[traces; round_trip; record_default()])
+
+
+    # model with distributions:
     amodel = AccessibleModel(Base.Fix2(loglike, data), mod0, (
         (@o _.comps[∗].shift) => Uniform(0, 10),
     ))
@@ -57,7 +81,6 @@ using TestItemRunner
     @test length(sol.sol.u::Vector) == 3
     @test getobj(sol) isa SumFunction
 
-    
     pt = pigeons(; target=amodel, n_rounds=8, record=[traces; round_trip; record_default()])
     # @test sample_names(pt)
     ss = samples(pt)

@@ -2,8 +2,8 @@ module AccessibleModels
 
 using Reexport
 @reexport using AccessorsExtra
-using DataManipulation
-using Distributions
+using DataPipes
+using FlexiMaps: flatmap
 import Printf
 
 export AccessibleModel, getobj, samples
@@ -21,7 +21,7 @@ AccessibleModel(loglike, modelobj, opticspecs) = AccessibleModel(
     modelobj,
     map(first, opticspecs),
     flatmap(opticspecs) do (o, d)
-        fill(_distribution(d), AccessorsExtra.nvals_optic(modelobj, o))
+        fill(d, AccessorsExtra.nvals_optic(modelobj, o))
     end |> Tuple,
 )
 AccessibleModel(loglike, modelobj, optics, distributions) = AccessibleModel(
@@ -29,21 +29,27 @@ AccessibleModel(loglike, modelobj, optics, distributions) = AccessibleModel(
     modelobj,
     optics,
     distributions,
-    product_distribution(distributions...),
+    _product_distribution(distributions...),
 )
 
-_distribution(d::UnivariateDistribution) = d
+function _product_distribution end
+function _cdf end
+function _quantile end
+function _logpdf end
+
 _optic((o, d)::Pair) = o
 optic(optics) = AccessorsExtra.ConcatOptics(map(_optic, optics))
 from_raw(u, m::AccessibleModel) = AccessorsExtra.setall_or_construct(m.modelobj, AccessorsExtra.ConcatOptics(m.optics), u)
 from_transformed(u, m::AccessibleModel) = from_raw(itransform(u, m), m)
 
-transform(u, m::AccessibleModel) = map(u, m.distributions) do v, d
-    cdf(d, v)
-end
-itransform(u, m::AccessibleModel) = map(u, m.distributions) do v, d
-    quantile(d, v)
-end
+transform(u, m::AccessibleModel) =
+    map(u, m.distributions) do v, d
+        _cdf(d, v)
+    end
+itransform(u, m::AccessibleModel) =
+    map(u, m.distributions) do v, d
+        _quantile(d, v)
+    end
 
 transformed_func(m::AccessibleModel) = (u, p) -> (m.loglike::Base.Fix2).f(from_transformed(u, m), p)
 raw_vec(m::AccessibleModel) = getall(m.modelobj, AccessorsExtra.ConcatOptics(m.optics))
@@ -56,8 +62,9 @@ end
 
 function getobj end
 
+# only for Pigeons: needs to be callable to pass to pigeons() directly
 function (m::AccessibleModel)(x)
-    prior = logpdf(m.prior, x)
+    prior = _logpdf(m.prior, x)
     prior == -Inf && return prior
     like = m.loglike(from_raw(x, m))
     return prior + like
