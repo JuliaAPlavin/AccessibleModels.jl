@@ -67,8 +67,8 @@ Convert raw parameter vector to model object.
 from_raw(u, m::AccessibleModel) = AccessorsExtra.setall_or_construct(m.modelobj, AccessorsExtra.ConcatOptics(m.optics), u)
 
 # doesn't seem needed, but seemed to help inference in some cases:
-from_raw(u::Vector, m::AccessibleModel{<:Any,<:Any,<:Any,<:NTuple{N}}) where {N} = from_raw(NTuple{N,eltype(u)}(u), m)
-
+from_raw(u::Vector, m::AccessibleModel{<:Any,<:Any,<:Any,<:NTuple{N}}) where {N} = from_raw(vec_to_tuple(u, Val{N}()), m)
+@generated vec_to_tuple(u::Vector{T}, m::Val{N}) where {T,N} = :(Base.Cartesian.@ntuple $N i->u[i])
 
 """
     from_transformed(u, m::AccessibleModel)
@@ -82,20 +82,14 @@ from_transformed(u, m::AccessibleModel) = from_raw(itransform(u, m), m)
 
 Transform raw parameters to 0..1 space using distribution CDFs or interval bounds.
 """
-transform(u, m::AccessibleModel) =
-    map(u, m.distributions) do v, d
-        _cdf(d, v)
-    end
+transform(u, m::AccessibleModel) = _cdf.(m.distributions, u)
 
 """
     itransform(u, m::AccessibleModel)
 
 Inverse transform from 0..1 space to raw parameters using distribution quantiles or interval bounds.
 """
-itransform(u, m::AccessibleModel) =
-    map(u, m.distributions) do v, d
-        _quantile(d, v)
-    end
+itransform(u, m::AccessibleModel) = _quantile.(m.distributions, u)
 
 """
     transformed_func(m::AccessibleModel)
@@ -109,7 +103,13 @@ transformed_func(m::AccessibleModel) = (u, p) -> (m.loglike::Base.Fix2).f(from_t
 
 Extract raw parameter vector from model object.
 """
-raw_vec(m::AccessibleModel) = promote(getall(m.modelobj, AccessorsExtra.ConcatOptics(m.optics))...)
+raw_vec(m::AccessibleModel) = getall(m.modelobj, AccessorsExtra.ConcatOptics(m.optics)) |> promote_to_concrete_eltype
+function promote_to_concrete_eltype(x::TU) where {N,TU<:NTuple{N,Any}}
+	T = promoted_eltype(x)
+	@assert isconcretetype(T)
+	convert(NTuple{N,T}, x)
+end
+@generated promoted_eltype(::TU) where {N,TU<:NTuple{N,Any}} = promote_type(fieldtypes(TU)...)
 
 """
     transformed_vec(m::AccessibleModel)
