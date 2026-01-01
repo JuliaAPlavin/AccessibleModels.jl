@@ -4,3 +4,24 @@ authors = ["Alexander Plavin <alexander@plav.in>"]
 version = "0.1.0"
 
 [deps]
+AccessorsExtra = "33016aad-b69d-45be-9359-82a41f556fd4"
+DataManipulation = "38052440-ad76-4236-8414-61389b2c5143"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+
+[weakdeps]
+Optimization = "7f7a1694-90dd-40f0-9382-eb1efda571ba"
+Pigeons = "0eb8d820-af6a-4919-95ae-11206f830c31"
+
+[extensions]
+OptimizationExt = "Optimization"
+PigeonsExt = "Pigeons"
+
+[compat]
+AccessorsExtra = "0.1.98"
+DataManipulation = "0.1.20"
+Distributions = "0.25.120"
+Optimization = "4.4.0"
+Pigeons = "0.4.9"
+Reexport = "1.2.2"
+julia = "1.10"
