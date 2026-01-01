@@ -11,7 +11,7 @@ using Makie
 
 Create interactive Makie sliders for model parameters with real-time object updates.
 """
-function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.modelobj))):", fmt=x -> @sprintf("%.3f", x), kwargs...)
+function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.modelobj))):", fmt=x -> @sprintf("%.3f", x), rowgap=nothing, kwargs...)
     result = Observable{Any}(m.modelobj)
     tvec = transformed_vec(m)
     i_tvec = 0
@@ -32,6 +32,10 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
         end
 	end
 	Label(pos[0,:], title, tellwidth=false)
+    if !isnothing(rowgap)
+        rowgap!(pos, rowgap)
+    end
+
 	slidervals = lift(tuple, map(s -> s.value, sliders)...)
     map!(result, slidervals) do vals
 	    from_transformed(vals, m)
