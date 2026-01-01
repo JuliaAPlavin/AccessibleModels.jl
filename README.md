@@ -2,7 +2,7 @@
 
 # Usage
 
-Define your model object – an arbitrary struct:
+Define your model object – an arbitrary struct (no dependency on AccessibleModels needed):
 ```julia
 julia> struct ExpFunction{A,B}
            scale::A
