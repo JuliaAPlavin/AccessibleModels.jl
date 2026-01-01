@@ -132,6 +132,12 @@ using TestItemRunner
     @test sp isa SumFunction
     @test sp.comps[1].shift isa Particles
     @test 0 ≤ sp.comps[1].shift ≤ 10
+
+    oldtbl = columntable(amodel)
+    newtbl = columntable(@set amodel.modelobj = sp)
+    @test newtbl.param == oldtbl.param
+    @test newtbl.prior == oldtbl.prior
+    @test newtbl.value isa Vector{<:Particles}
 end
 
 
