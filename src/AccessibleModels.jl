@@ -4,6 +4,7 @@ using Reexport
 @reexport using AccessorsExtra
 using DataPipes
 using FlexiMaps: flatmap
+using FlexiGroups: groupfind_vg
 import Printf
 using Distributions
 

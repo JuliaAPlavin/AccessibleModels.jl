@@ -4,7 +4,8 @@ using AccessibleModels
 using AccessibleModels.Distributions
 using AccessibleModels: from_transformed, transformed_vec
 using AccessibleModels.Printf
-using AccessibleModels: @p, flatmap
+using AccessibleModels.AccessorsExtra: decompose
+using AccessibleModels: @p, flatmap, groupfind_vg
 using Makie
 
 """
@@ -15,7 +16,7 @@ Create interactive Makie sliders for model parameters with real-time object upda
 If `state::Dict` is provided, slider values are stored in the given dictionary keyed by
 parameter labels (the same text shown next to sliders).
 """
-function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.modelobj))):", fmt=x -> @sprintf("%.3f", x), rowgap=nothing, state=nothing, kwargs...)
+function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.modelobj))):", fmt=x -> @sprintf("%.3f", x), rowgap=nothing, state=nothing, autoblocks=true, kwargs...)
     result = Observable{Any}(m.modelobj)
     tvec = transformed_vec(m)
     i_tvec = 0
@@ -47,6 +48,17 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
     Label(pos[0,:], title, tellwidth=false)
     if !isnothing(rowgap)
         rowgap!(pos, rowgap)
+    end
+
+    if autoblocks
+        colors = Makie.Colors.JULIA_LOGO_COLORS
+        @p collect(m.optics) groupfind_vg(last(decompose(_))) enumerate() map() do (i, ixs)
+            length(ixs) == ixs[end] - ixs[begin] + 1 || return
+            ixs = ixs[begin]:ixs[end]
+            color = colors[mod(i, begin:end)]
+            box = Box(pos[ixs,:], cornerradius=0, color=(color, 0.05), strokecolor=color, strokewidth=0.5, alignmode = Outside(-5,-5,0,0))
+            Makie.translate!(box.blockscene, 0, 0, -100)
+        end
     end
 
     map!(result, map(s -> s.value, sliders)...) do vals...
