@@ -21,6 +21,10 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
     tvec = transformed_vec(m)
     i_tvec = 0
     labelkeys = String[]
+
+    # for performance of grid updates: block updates of the layout while updating all slider labels
+    # otherwise, each label update triggers a layout recomputation (ie, many recomputations for a single result update)
+    on(_ -> (content(pos).block_updates = true), result)
     sliders = flatmap(enumerate(m.optics)) do (i, o)
         curvals = liftT(result -> getall(result, o), Any, result)
 
@@ -45,6 +49,8 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
             Slider(pos[i_tvec,2]; range=sliderrange, startvalue, kwargs...)
         end
     end
+    on(_ -> (content(pos).block_updates = false), result)
+
     Label(pos[0,:], title, tellwidth=false)
     if !isnothing(rowgap)
         rowgap!(pos, rowgap)
