@@ -26,7 +26,8 @@ julia> mod0 = SumFunction((
 
 julia> lines(0..5, x -> mod0(x))
 ```
-<XXXXX image placeholder>
+<img width="600" alt="figure1_initial_model" src="https://github.com/user-attachments/assets/2b3e4409-aa7c-4172-ab2e-54e8f7da91bd" />
+
 
 ## Quick UI
 
@@ -49,7 +50,10 @@ julia> obj, = SliderGrid(amodel)
 
 julia> lines(0..10, @lift x -> $obj(x))
 ```
-<XXXXXXXX video placeholder>
+
+https://github.com/user-attachments/assets/cb4e1176-eac3-4899-b78b-35dbdece5c6f
+
+
 
 ## Optimization
 
@@ -91,7 +95,7 @@ SumFunction((
     ExpFunction(1.983, 3.098),
     ExpFunction(1.574, 7.013)))
 ```
-<XXXXXXXX image placeholder comparing this model lines(), data scatter(), and true model lines()>
+<img width="600" alt="figure2_optimization_results" src="https://github.com/user-attachments/assets/b711187e-7c15-413a-bee5-15fba33c93c4" />
 
 # MCMC fitting
 
@@ -124,4 +128,8 @@ Thanks to Julia composability, this model can also be plotted directly with Maki
 ```julia
 julia> lines!(0..10, x -> mcmc_fitted(x))
 julia> band(0..10, x -> mcmc_fitted(x))
+```
+<img width="600" alt="figure3_mcmc_uncertainty" src="https://github.com/user-attachments/assets/a6dcaf17-86db-4571-91da-f8f01f8487c7" />
+
+
 ```
