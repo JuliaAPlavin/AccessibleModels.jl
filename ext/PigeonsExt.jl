@@ -10,7 +10,9 @@ Pigeons.default_reference(m::AccessibleModel) =
     isnothing(m.prior) ? error("No prior specified for model") :
                          Pigeons.DistributionLogPotential(m.prior)
 
-Pigeons.initialization(m::AccessibleModel, ::AbstractRNG, ::Int) = collect(raw_vec(m))
+Pigeons.initialization(m::AccessibleModel, ::AbstractRNG, ::Int) =
+	m.modelobj isa Type ? collect(map(Pigeons.mean, m.distributions)) :
+		 				  collect(raw_vec(m))
 
 function AccessibleModels.samples(pt)
     @assert last(sample_names(pt)) == :log_density

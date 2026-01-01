@@ -149,6 +149,16 @@ using TestItemRunner
     @test newtbl.param == oldtbl.param
     @test newtbl.prior == oldtbl.prior
     @test newtbl.value isa Vector{<:Particles}
+
+    # provide type, not initial value to model:
+    amodel = AccessibleModel(Base.Fix2((p, data) -> p.a^2, data), NamedTuple, (
+        (@o _.a) => Uniform(0, 10),
+    ))
+    pt = pigeons(; target=amodel, n_rounds=8, record=[traces; round_trip; record_default()])
+    @test sample_names(pt) == [:a, :log_density]
+    # smoke test:
+    ss = samples(pt)
+    sp = samples(Particles, pt)
 end
 
 
