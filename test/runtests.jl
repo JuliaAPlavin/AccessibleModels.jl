@@ -235,27 +235,29 @@ end
 
 @testitem "slidergrid cache" begin
     using Makie
+    using Dictionaries
 
-    amodel = AccessibleModel((a=1, b=0.5), (
-        (@o _.a) => 0..10,
-        (@o _.b) => -1..1,
-    ))
-    fig = Figure()
-    state = Dict()
+    @testset for state in [Dict(), Dictionary()]
+        amodel = AccessibleModel((a=1, b=0.5), (
+            (@o _.a) => 0..10,
+            (@o _.b) => -1..1,
+        ))
+        fig = Figure()
 
-    obj, sls = SliderGrid(fig[1,1], amodel; state)
-    @test obj[].a ≈ 1  atol=10/300
-    @test obj[].b ≈ 0.5  atol=2/300
-    @test isempty(state)
+        obj, sls = SliderGrid(fig[1,1], amodel; state)
+        @test obj[].a ≈ 1  atol=10/300
+        @test obj[].b ≈ 0.5  atol=2/300
+        @test isempty(state)
 
-    Makie.set_close_to!(sls[1], 0.6)
-    @test obj[].a ≈ 6  atol=10/300
-    @test keys(state) == Set(["a"])
-    @test state["a"] ≈ 6  atol=10/300
+        Makie.set_close_to!(sls[1], 0.6)
+        @test obj[].a ≈ 6  atol=10/300
+        @test issetequal(keys(state), ["a"])
+        @test state["a"] ≈ 6  atol=10/300
 
-    obj, sls = SliderGrid(fig[1,1], amodel; state)
-    @test obj[].a ≈ 6  atol=10/300
-    @test obj[].b ≈ 0.5  atol=2/300
+        obj, sls = SliderGrid(fig[1,1], amodel; state)
+        @test obj[].a ≈ 6  atol=10/300
+        @test obj[].b ≈ 0.5  atol=2/300
+    end
 end
 
 
