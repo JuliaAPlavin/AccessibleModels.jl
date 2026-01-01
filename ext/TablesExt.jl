@@ -28,4 +28,26 @@ function Tables.columns(m::AccessibleModel)
     map(col -> collect(promote(col...)), cols)
 end
 
+
+function AccessibleModels.from_table(tbl, m::AccessibleModel)
+    param_to_val = @p let
+        rowtable(tbl)
+        map() do r
+            r.param => r.value
+        end
+        Dict
+    end
+    param_names = flatmap(m.optics) do o
+        @p let
+            AccessorsExtra.flat_concatoptic(m.modelobj, o)
+            AccessorsExtra._optics
+            map(AccessorsExtra.barebones_string)
+        end
+    end
+    raw_vec = map(param_names) do name
+        param_to_val[name]
+    end
+    return AccessibleModels.from_raw(raw_vec, m)
+end
+
 end
