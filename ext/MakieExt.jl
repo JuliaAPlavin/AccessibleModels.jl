@@ -30,9 +30,9 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
         end
 
         map(enumerate(labels)) do (j, label)
-            Label(pos[i,1][j,1], label)
-            Label(pos[i,1][j,3], @lift fmt($curvals[j]))
             i_tvec += 1
+            Label(pos[i_tvec,1], label; halign=:left)
+            Label(pos[i_tvec,3], lift(curvals -> dofmt(fmt, curvals[j]), curvals), halign=:right)
             push!(labelkeys, label)
             dist = m.distributions[i_tvec]
             sliderrange = auto_slider_range(dist)
@@ -41,7 +41,7 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
             if !isnothing(state) && haskey(state, label)
                 startvalue = cdf(dist, state[label])
             end
-            Slider(pos[i,1][j,2]; range=sliderrange, startvalue, kwargs...)
+            Slider(pos[i_tvec,2]; range=sliderrange, startvalue, kwargs...)
         end
     end
     Label(pos[0,:], title, tellwidth=false)
@@ -65,6 +65,10 @@ end
 
 auto_slider_range(_) = range(0,1; length=300)
 auto_slider_range(d::DiscreteUnivariateDistribution) = @p support(d) map(cdf(d, _)) map(clamp(_ - √(eps(_)), 0,1))
+
+
+dofmt(fmt::Function, x::Integer) = string(x)
+dofmt(fmt::Function, x::Real) = fmt(x)
 
 
 # copied from MakieExtra.jl:
