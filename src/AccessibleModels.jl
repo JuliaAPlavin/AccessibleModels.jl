@@ -174,4 +174,6 @@ Such a table can be obtained as `rowtable(m)`, or saved/loaded with any Tables.j
 """
 from_table(tbl, m) = error("load Tables.jl to use from_table")
 
+include("../ext/DistributionsExt.jl")
+
 end

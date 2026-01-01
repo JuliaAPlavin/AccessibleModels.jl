@@ -3,6 +3,35 @@ using TestItemRunner
 @run_package_tests
 
 
+@testitem "no-distributions example" begin
+    # want to execute this code when Distributions aren't loaded yet, not to trigger the extension
+    # see https://github.com/JuliaAPlavin/AccessibleModels.jl/issues/1
+    using IntervalSets: (..)
+    using Optimization, OptimizationMetaheuristics
+
+    struct ExpFunction{A,B}
+        scale::A
+        shift::B
+    end
+    struct SumFunction{T}
+        comps::T
+    end
+    (m::ExpFunction)(x) = m.scale * exp(-(x - m.shift)^2)
+    (m::SumFunction)(x) = sum(c -> c(x), m.comps)
+
+    mod0 = SumFunction((
+        ExpFunction(1., 1.),
+        ExpFunction(2., 2.),
+    ))
+    amodel = AccessibleModel(Base.Fix2((m, data) -> -abs(m(2) - data), 5), mod0, (
+        (@o _.comps[∗].shift) => 0..10,
+        (@o _.comps[∗].scale) => 0..4,
+    ))
+
+    op = OptimizationProblem(amodel)
+    sol = solve(op, ECA(), amodel)
+end
+
 @testitem "basic usage" begin
     using StructArrays
     using Distributions
