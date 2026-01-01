@@ -64,17 +64,28 @@ julia> lines(fig[1,2], 0..10, @lift x -> $obj(x))
 
 https://github.com/user-attachments/assets/cb4e1176-eac3-4899-b78b-35dbdece5c6f
 
-See [Accessors.jl](https://github.com/JuliaObjects/Accessors.jl) and [AccessorsExtra.jl](https://github.com/JuliaAPlavin/AccessorsExtra.jl) for more details and examples on how parameters can be defined.
+### Parameter Specification
+
+The `@o` macro and its syntax come from [Accessors.jl](https://github.com/JuliaObjects/Accessors.jl).
+
+The intuition that should cover the vast majority of scenarios is "just write how you would access the target location normally, replace your object with `_`, and write `@o` in front". For example:
+- want to modify `yourobj.a`? write `@o _.a`
+- `yourobj[1]` ⇒ `@o _[1]`
+- `last(yourobj.a)` ⇒ `@o last(_.a)`
+
+and so on.
+
+See the [Accessors.jl](https://github.com/JuliaObjects/Accessors.jl) docs (and [AccessorsExtra.jl](https://github.com/JuliaAPlavin/AccessorsExtra.jl) with more advanced features) for details and more examples.
 
 
 ## Optimization
 
-Use the same AccessibleModel with a loss function for optimization.
+Use the same AccessibleModel for optimization – just add a loss function.
 
-Key benefits compared:
-- No need to manually convert between vectors and objects
-- Works with any Julia objects
-- No special annotations or magic required
+Key features:
+- Optimize any Julia struct directly 🎯
+- Works with any Optimization.jl backend 🌐
+- Zero boilerplate, No manual parameter extraction/reconstruction code ✨
 
 ```julia
 # Generate example data using a "true" model
@@ -113,7 +124,8 @@ SumFunction((
 
 ## MCMC Sampling
 
-Use the exact same AccessibleModel as in the optimization example above. Alternatively, you can specify priors using Distributions.jl distributions instead of intervals.
+Use the exact same AccessibleModel as in the optimization example above.
+Alternatively, you can specify priors using Distributions.jl distributions instead of intervals (intervals are assumed uniform priors).
 
 ```julia
 julia> using Pigeons
