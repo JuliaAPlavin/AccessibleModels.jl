@@ -190,6 +190,18 @@ end
     sp = samples(Particles, pt)
 end
 
+@testitem "P()" begin
+    using AccessibleModels: P, Auto
+    using IntervalSets
+
+    amodel = AccessibleModel((
+        a=P(1..5),
+        b=(P([0,1,2,3], 3), P([false, true]))
+    ), Auto())
+
+    @test amodel.modelobj === (a=3., b=(3, false))
+end
+
 @testitem "slider for discrete distribution" begin
     using Distributions
     using Makie

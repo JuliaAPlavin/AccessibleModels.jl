@@ -55,6 +55,33 @@ AccessibleModel(loglike, modelobj, optics, distributions) = AccessibleModel(
 )
 
 
+struct ParamNumber <: Number
+    spec
+    initial
+end
+P(spec, initial=nothing) = ParamNumber(spec, initial)
+
+struct Auto end
+
+function AccessibleModel(loglike, _modelobj, opticspecs::Auto)
+    optics = AccessorsExtra.flat_concatoptic(_modelobj, RecursiveOfType(ParamNumber))
+    modelobj = modify(_initial_value, _modelobj, optics)
+    opticspecs = map(AccessorsExtra._optics(optics)) do o
+        o => _to_distribution(o(_modelobj))
+    end
+	AccessibleModel(
+	    loglike,
+	    modelobj,
+	    map(first, opticspecs),
+	    flatmap(opticspecs) do (o, d)
+	        fill(d, AccessorsExtra.nvals_optic(modelobj, o))
+	    end |> Tuple,
+	)
+end
+
+_initial_value(p::ParamNumber) = @something p.initial median(_to_distribution(p.spec))
+
+_to_distribution(p::ParamNumber) = _to_distribution(p.spec)
 _to_distribution(d::Distribution) = d
 _to_distribution(d) = uniform(d)
 uniform(x::AbstractUnitRange) = DiscreteUniform(first(x), last(x))
