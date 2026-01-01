@@ -5,13 +5,14 @@ using Reexport
 using DataManipulation
 using Distributions
 
-export AccessibleModel, getobj
+export AccessibleModel, getobj, samples
 
-struct AccessibleModel{F,M,P,D}
+struct AccessibleModel{F,M,P,D,PD}
     loglike::F
     modelobj::M
     optics::P
     distributions::D
+    prior::PD
 end
 
 AccessibleModel(loglike, modelobj, opticspecs) = AccessibleModel(
@@ -21,6 +22,13 @@ AccessibleModel(loglike, modelobj, opticspecs) = AccessibleModel(
     flatmap(opticspecs) do (o, d)
         fill(_distribution(d), AccessorsExtra.nvals_optic(modelobj, o))
     end |> Tuple,
+)
+AccessibleModel(loglike, modelobj, optics, distributions) = AccessibleModel(
+    loglike,
+    modelobj,
+    optics,
+    distributions,
+    product_distribution(distributions...),
 )
 
 _distribution(d::UnivariateDistribution) = d
@@ -46,5 +54,14 @@ transformed_bounds(m::AccessibleModel) = @p let
 end
 
 function getobj end
+
+function (m::AccessibleModel)(x)
+    prior = logpdf(m.prior, x)
+    prior == -Inf && return prior
+    like = m.loglike(from_raw(x, m))
+    return prior + like
+end
+
+function samples end
 
 end

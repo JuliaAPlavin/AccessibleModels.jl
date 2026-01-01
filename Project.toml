@@ -10,17 +10,20 @@ Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [weakdeps]
+MonteCarloMeasurements = "0987c9cc-fe09-11e8-30f0-b96dd679fdca"
 Optimization = "7f7a1694-90dd-40f0-9382-eb1efda571ba"
 Pigeons = "0eb8d820-af6a-4919-95ae-11206f830c31"
 
 [extensions]
 OptimizationExt = "Optimization"
 PigeonsExt = "Pigeons"
+MonteCarloMeasurementsPigeonsExt = ["MonteCarloMeasurements", "Pigeons"]
 
 [compat]
 AccessorsExtra = "0.1.98"
 DataManipulation = "0.1.20"
 Distributions = "0.25.120"
+MonteCarloMeasurements = "1.4.7"
 Optimization = "4.4.0"
 Pigeons = "0.4.9"
 Reexport = "1.2.2"
