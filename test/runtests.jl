@@ -190,6 +190,33 @@ end
     sp = samples(Particles, pt)
 end
 
+@testitem "slider for discrete distribution" begin
+    using Distributions
+    using Makie
+
+    amodel = AccessibleModel((a=1, b=2, c=3), (
+        (@o _.a) => Uniform(0, 10),
+        (@o _.b) => DiscreteUniform(1, 5),
+        (@o _.c) => DiscreteNonParametric([1, 2, 5], [0.2, 0.5, 0.3]),
+    ))
+    fig = Figure()
+    for val in range(0..10, 55)
+        am = @set amodel.modelobj.a = val
+        obj, = SliderGrid(fig[1,1], am)
+        @test obj[].a ≈ val  atol=1.2*10/300
+    end
+    for val in 1:5
+        am = @set amodel.modelobj.b = val
+        obj, = SliderGrid(fig[2,1], am)
+        @test obj[].b == val
+    end
+    for val in [1, 2, 5]
+        am = @set amodel.modelobj.c = val
+        obj, = SliderGrid(fig[3,1], am)
+        @test obj[].c == val
+    end
+end
+
 
 @testitem "_" begin
     import Aqua

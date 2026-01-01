@@ -1,6 +1,7 @@
 module MakieExt
 
 using AccessibleModels
+using AccessibleModels.Distributions
 using AccessibleModels: from_transformed, transformed_vec
 using AccessibleModels.Printf
 using AccessibleModels: @p, flatmap
@@ -17,6 +18,8 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
     i_tvec = 0
 	sliders = flatmap(enumerate(m.optics)) do (i, o)
         curvals = liftT(result -> getall(result, o), Any, result)
+        dist = m.distributions[i]
+        sliderrange = auto_slider_range(dist)
 
         labels = @p let
             AccessorsExtra.flat_concatoptic(m.modelobj, o)
@@ -28,7 +31,7 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
             Label(pos[i,1][j,1], label)
             Label(pos[i,1][j,3], @lift fmt($curvals[j]))
             i_tvec += 1
-            sl = Slider(pos[i,1][j,2]; range=range(0,1; length=300), startvalue=tvec[i_tvec], kwargs...)
+            sl = Slider(pos[i,1][j,2]; range=sliderrange, startvalue=tvec[i_tvec], kwargs...)
         end
 	end
 	Label(pos[0,:], title, tellwidth=false)
@@ -42,6 +45,9 @@ function Makie.SliderGrid(pos, m::AccessibleModel; title="$(nameof(typeof(m.mode
     end
     return result, sliders
 end
+
+auto_slider_range(_) = range(0,1; length=300)
+auto_slider_range(d::DiscreteUnivariateDistribution) = @p support(d) map(cdf(d, _)) map(clamp(_ - √(eps(_)), 0,1))
 
 
 # copied from MakieExtra.jl:

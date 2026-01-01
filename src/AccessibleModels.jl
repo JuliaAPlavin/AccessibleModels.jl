@@ -5,6 +5,7 @@ using Reexport
 using DataPipes
 using FlexiMaps: flatmap
 import Printf
+using Distributions
 
 export AccessibleModel, getobj, samples
 
