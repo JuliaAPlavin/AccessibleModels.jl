@@ -67,7 +67,7 @@ Convert raw parameter vector to model object.
 from_raw(u, m::AccessibleModel) = AccessorsExtra.setall_or_construct(m.modelobj, AccessorsExtra.ConcatOptics(m.optics), u)
 
 # doesn't seem needed, but seemed to help inference in some cases:
-from_raw(u::Vector, m::AccessibleModel{<:Any,<:Any,<:Any,<:NTuple{N}}) where {N} = AccessibleModels.from_raw(NTuple{N,eltype(u)}(u), m)
+from_raw(u::Vector, m::AccessibleModel{<:Any,<:Any,<:Any,<:NTuple{N}}) where {N} = from_raw(NTuple{N,eltype(u)}(u), m)
 
 
 """
