@@ -14,28 +14,29 @@ AccessibleModels.jl is a thin layer that connects [Accessors.jl](https://github.
 
 Define your model object as an arbitrary struct (no dependency on AccessibleModels needed):
 ```julia
-julia> struct ExpFunction{A,B}
-           scale::A
-           shift::B
-       end
+struct ExpFunction{A,B}
+    scale::A
+    shift::B
+end
 
-julia> struct SumFunction{T}
-           comps::T
-       end
+struct SumFunction{T}
+    comps::T
+end
 
-julia> (m::ExpFunction)(x) = m.scale * exp(-(x - m.shift)^2)
+(m::ExpFunction)(x) = m.scale * exp(-(x - m.shift)^2)
 
-julia> (m::SumFunction)(x) = sum(c -> c(x), m.comps)
+(m::SumFunction)(x) = sum(c -> c(x), m.comps)
 ```
 
 This model describes a smooth function, sum of exponentials:
 ```julia
-julia> mod0 = SumFunction((
-           ExpFunction(1., 1.),
-           ExpFunction(2., 2.),
-       ))
+mod0 = SumFunction((
+    ExpFunction(1., 1.),
+    ExpFunction(2., 2.),
+))
 
-julia> lines(0..5, x -> mod0(x))
+using GLMakie
+lines(0..5, x -> mod0(x))
 ```
 <img width="600" alt="figure1_initial_model" src="https://github.com/user-attachments/assets/b4f8ad9f-3c8a-4df4-93da-7e58fb83ec9a" />
 
@@ -44,22 +45,17 @@ julia> lines(0..5, x -> mod0(x))
 
 Use AccessibleModels.jl to create an interactive Makie UI for adjusting model parameters:
 ```julia
-julia> using AccessibleModels, IntervalSets
-julia> using GLMakie
+using AccessibleModels, IntervalSets
 
-julia> mod0 = SumFunction((
-           ExpFunction(1., 1.),
-           ExpFunction(2., 2.),
-       ))
+amodel = AccessibleModel(mod0, (
+    (@o _.comps[∗].shift) => 0..10,
+    (@o _.comps[∗].scale) => 0..4,
+))
 
-julia> amodel = AccessibleModel(mod0, (
-           (@o _.comps[∗].shift) => 0..10,
-           (@o _.comps[∗].scale) => 0..4,
-       ))
+fig = Figure()
+obj, = SliderGrid(fig[1,1], amodel)
 
-julia> obj, = SliderGrid(fig[1,1], amodel)
-
-julia> lines(fig[1,2], 0..10, @lift x -> $obj(x))
+lines(fig[1,2], 0..10, @lift x -> $obj(x))
 ```
 
 https://github.com/user-attachments/assets/bb0aaa03-e9da-4e04-88ce-d69265db8228
